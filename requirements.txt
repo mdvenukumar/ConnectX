@@ -1,7 +1,7 @@
 Flask
 requests
 tweepy
-tavily
-google-generative-ai
+tavily-python
+google-generativeai
 python-dotenv
 gunicorn
