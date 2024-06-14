@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConnectX - Tweet Generator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="/static/favicon.ico">
+</head>
+
+<body class="bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">ConnectX</h1>
+        </div>
+        
+        <form id="tweet-form" class="space-y-4">
+            <div>
+                <label for="query" class="block text-gray-700 font-bold mb-2">Enter your query:</label>
+                <input type="text" id="query" name="query" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            </div>
+            <div class="text-center">
+                <button type="button" onclick="generateTweet()" class="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                    <i class="fas fa-magic"></i> Generate Tweet
+                </button>
+            </div>
+        </form>
+        <div id="tweet-result" class="mt-6 text-center text-gray-700"></div>
+        <form id="post-tweet-form" class="mt-6 text-center" style="display:none;">
+            <button type="button" onclick="postTweet()" class="w-full py-3 bg-green-500 text-white rounded-lg hover:bg-green-700 transition duration-300">
+                <i class="fas fa-paper-plane"></i> Post Tweet
+            </button>
+        </form>
+        <br>
+        <div class="flex justify-between items-center mb-6">
+            <button onclick="logout()" class="py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-700 transition duration-300">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <script>
+        async function generateTweet() {
+            const query = document.getElementById('query').value;
+            const tweetResult = document.getElementById('tweet-result');
+            tweetResult.innerHTML = `
+                <div class="loading-stage">Fetching information...</div>
+                <div class="loading-stage">Scanning data...</div>
+                <div class="loading-stage">Generating tweet...</div>
+                <div class="spinner"></div>
+            `;
+
+            const response = await fetch('/generate_tweet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: query }),
+            });
+            const data = await response.json();
+            tweetResult.innerHTML = `<p class="text-lg font-semibold">${data.tweet}</p>`;
+            document.getElementById('post-tweet-form').style.display = 'block';
+            document.getElementById('post-tweet-form').innerHTML = `
+                <input type="hidden" id="generated-tweet" value="${data.tweet}">
+                <input type="hidden" id="context" value="${data.context}">
+                <button type="button" onclick="postTweet()" class="w-full py-3 bg-green-500 text-white rounded-lg hover:bg-green-700 transition duration-300">
+                    <i class="fas fa-paper-plane"></i> Post Tweet
+                </button>
+            `;
+        }
+
+        async function postTweet() {
+            const tweet = document.getElementById('generated-tweet').value;
+            const response = await fetch('/post_tweet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ tweet: tweet }),
+            });
+            const data = await response.json();
+            alert(data.message);
+        }
+
+        async function logout() {
+            const response = await fetch('/logout', {
+                method: 'GET',
+            });
+            if (response.ok) {
+                sessionStorage.removeItem('authenticated');
+                window.location.href = '/login';
+            } else {
+                alert('Failed to logout');
+            }
+        }
+
+        window.addEventListener('popstate', function(event) {
+            if (!sessionStorage.getItem('authenticated')) {
+                window.location.href = '/login';
+            }
+        });
+
+        window.onload = function() {
+            sessionStorage.setItem('authenticated', 'true');
+        }
+    </script>
+</body>
+
+</html>

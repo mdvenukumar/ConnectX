@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConnectX - Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="/static/favicon.ico">
+</head>
+
+<body class="bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">ConnectX</h1>
+        </div>
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label for="username" class="block text-gray-700 font-bold mb-2">Username:</label>
+                <input type="text" id="username" name="username" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+                <label for="password" class="block text-gray-700 font-bold mb-2">Password:</label>
+                <input type="password" id="password" name="password" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            </div>
+            <div class="text-center">
+                <button type="button" onclick="login()" class="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </div>
+        </form>
+        <div id="login-error" class="mt-4 text-center text-red-500"></div>
+    </div>
+
+    <script>
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                sessionStorage.setItem('authenticated', 'true');
+                window.location.href = '/';
+            } else {
+                document.getElementById('login-error').innerText = data.message;
+            }
+        }
+    </script>
+</body>
+
+</html>
