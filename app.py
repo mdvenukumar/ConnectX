@@ -77,7 +77,8 @@ def generate_tweet(query, context=None):
     # Define the prompt for the generative AI model
     prompt = f"""You are an engagement master! Craft a concise and informative tweet summarizing the situation: {context}. 
     Use your wit to spark conversation and evoke a positive emotional response from your audience. 
-    Include a call to action to keep them interacting. Top it off with trending hashtags to expand your reach!
+    Include a call to action to keep them interacting. Top it off with trending hashtags to expand your reach! 
+    Make sure you make a tweet in 100 characters!
     {context}"""
 
     # Start the chat session
